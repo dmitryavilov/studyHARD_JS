@@ -61,8 +61,8 @@ const getDayToPage = () => {
 
         const checkDeclination = (isHour = false, isMin = false, isSec = false) => {
             let hour = today.hour.toString().slice(-2),
-                minute = today.minute.toString().slice(-1),
-                second = today.second.toString().slice(-1),
+                minute = today.minute.toString().slice(-2),
+                second = today.second.toString().slice(-2),
                 ending;
 
             // Для часов
