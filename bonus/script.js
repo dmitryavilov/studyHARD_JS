@@ -59,12 +59,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
             usersWrapper.innerHTML = '';
 
-            users.forEach(item => {
+            users.forEach((item, index) => {
                 usersWrapper.innerHTML += `
-                <li>
-                    Имя и Фамилия: ${item.fullName}, Дата регистрации: ${item.date.day} ${item.date.month} ${item.date.year} г., 
-                    ${item.date.hour}:${item.date.minute}:${item.date.second}
-                </li>`;
+                <div data-num="${index}" class="user">
+                    <p>
+                        Имя и Фамилия: ${item.fullName}, Дата регистрации: ${item.date.day} ${item.date.month} ${item.date.year} г., 
+                        ${item.date.hour}:${item.date.minute}:${item.date.second} <button class="delete-btn">Х</button>
+                    </p> 
+                </div>`;
             });
         };
 
@@ -73,24 +75,76 @@ window.addEventListener('DOMContentLoaded', () => {
 
             if (localStorage.getItem('users') === null) {
                 users = [];
+            } else if (localStorage.getItem('users') === '[]') {
+                usersWrapper.innerHTML = 'Пользователей пока что нет';
             } else {
                 users = JSON.parse(localStorage.getItem('users'));
             };
             
-            users.forEach(item => {
+            users.forEach((item, index) => {
                 usersWrapper.innerHTML += `
-                <li>
-                    Имя и Фамилия: ${item.fullName}, Дата регистрации: ${item.date.day} ${item.date.month} ${item.date.year} г., 
-                    ${item.date.hour}:${item.date.minute}:${item.date.second}
-                </li>`;
+                <div data-num="${index}" class="user">  
+                    <p>
+                        Имя и Фамилия: ${item.fullName}, Дата регистрации: ${item.date.day} ${item.date.month} ${item.date.year} г., 
+                        ${item.date.hour}:${item.date.minute}:${item.date.second} <button class="delete-btn">Х</button>
+                    </p> 
+                </div>`;
             });
         };
 
+        const deleteUser = e => {
+            let users = JSON.parse(localStorage.getItem('users')),
+                target = e.target;
+
+            users.forEach((item, index) => {
+                if (target.closest('.user').dataset.num == index) {
+                    users[index] = null;
+
+                    users = users.filter(x => {
+                        x !== null;
+                        return x;
+                    });
+
+                    users = JSON.stringify(users);
+                    localStorage.setItem('users', users);
+                    usersWrapper.innerHTML = '';
+
+                    getUsersToPage();
+                }
+            });
+        };
+
+        const searchUser = e => {
+            let users = JSON.parse(localStorage.getItem('users')),
+                flag = false;
+            const login = prompt('Введите логин'),
+                  password = prompt('Введите пароль');
+
+            users.forEach(item => {
+                if (item.login === login && item.password === password) {
+                    usersWrapper.innerHTML = '';
+                    usersWrapper.innerHTML = `
+                    <div class="user">  
+                        <p>
+                            Имя и Фамилия: ${item.fullName}, Дата регистрации: ${item.date.day} ${item.date.month} ${item.date.year} г., 
+                            ${item.date.hour}:${item.date.minute}:${item.date.second}
+                        </p> 
+                    </div>`;
+                    flag = true; 
+                };
+            });
+
+            if (!flag) {
+                alert('Пользователь не найден');
+            };
+        };
+
         regBtn.addEventListener('click', getNewUsers);
+        usersWrapper.addEventListener('click', deleteUser);
+        authBtn.addEventListener('click', searchUser);
 
         getUsersToPage();
-        
-    }
+    };
 
     interactionWithUser();
 });
